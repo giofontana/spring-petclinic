@@ -2,6 +2,7 @@ kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
   name: spring-petclinic-gitops
+  namespace: petclinic-qa
   labels:
     app: spring-petclinic-gitops
 spec:

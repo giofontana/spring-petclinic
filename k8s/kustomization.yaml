@@ -2,5 +2,4 @@ resources:
 - deployment.yaml
 - service.yaml
 - route.yaml
-
-namespace: petclinic-qa
+- rolebinding.yaml
