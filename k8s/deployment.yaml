@@ -18,7 +18,7 @@ spec:
       containers:
         - name: spring-petclinic-git
           image: >-
-            image-registry.openshift-image-registry.svc:5000/petclinic-cicd/spring-petclinic-git
+            image-registry.openshift-image-registry.svc:5000/petclinic-cicd/spring-petclinic
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: mysql
