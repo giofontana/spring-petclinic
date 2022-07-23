@@ -1,5 +1,3 @@
 resources:
-- deployment.yaml
-- service.yaml
-- route.yaml
-- rolebinding.yaml
+- mysql
+- petclinic

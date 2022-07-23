@@ -1,0 +1,109 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  namespace: petclinic-qa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:         
+      containers:
+      - env:
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              key: database-user
+              name: mysql
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: database-password
+              name: mysql
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: database-root-password
+              name: mysql
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              key: database-name
+              name: mysql
+        image: 'registry.redhat.io/rhel8/mysql-80@sha256:54a45c2e00a0d83605d7c2f262ca515d8f5fa1e47ea289e49cfee87c89e3d7ab'
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -i
+            - -c
+            - MYSQL_PWD="$MYSQL_PASSWORD" mysqladmin -u $MYSQL_USER ping
+          initialDelaySeconds: 30
+          timeoutSeconds: 1
+          failureThreshold: 3
+          periodSeconds: 10
+          successThreshold: 1          
+        name: mysql
+        ports:
+        - containerPort: 3306
+          protocol: TCP
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -i
+            - -c
+            - MYSQL_PWD="$MYSQL_PASSWORD" mysqladmin -u $MYSQL_USER ping
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+          failureThreshold: 3
+          periodSeconds: 10
+          successThreshold: 1
+        resources:
+          limits:
+            memory: 512Mi
+        volumeMounts:
+        - mountPath: /var/lib/mysql/data
+          name: mysql-data  
+        - mountPath: /var/lib/mysql/init
+          name: mysql-initdb            
+        terminationMessagePath: /dev/termination-log	
+        terminationMessagePolicy: File             
+        lifecycle:
+            postStart:
+              exec:
+                command:
+                  - sh
+                  - -c
+                  - |
+                  
+                    # Wait until mysql is running 
+                    while ! mysqladmin ping --host=localhost --user=${MYSQL_USER} --password=${MYSQL_PASSWORD} --silent; do
+                      echo "Waiting mysql to start"  
+                      sleep 1
+                    done
+
+                    # Check if database hasn't been set yet 
+                    is_empty=$(mysql --host=localhost --user=${MYSQL_USER} --password=${MYSQL_PASSWORD} ${MYSQL_DATABASE} -e 'SELECT word FROM words WHERE type_id=1;')
+
+                    # if DB is empty then run the init script 
+                    if [ -z "$is_empty" ]; then
+                      mysql --host=localhost --user=${MYSQL_USER} --password=${MYSQL_PASSWORD} ${MYSQL_DATABASE} < /var/lib/mysql/init/sql.txt 
+                    fi 
+      volumes:
+      - name: mysql-data
+        persistentVolumeClaim:
+          claimName: mysql                            
+      - name: mysql-initdb
+        configMap:
+          name: sql-init      
+      
+      
