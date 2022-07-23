@@ -18,7 +18,7 @@ spec:
       containers:
         - name: spring-petclinic-git
           image: >-
-            image-registry.openshift-image-registry.svc:5000/petclinic-cicd/spring-petclinic-git@sha256:a87d051c8bd6eab8112c31cf02af53ca4b443fa7a69f4db0297cbede20969fcb
+            image-registry.openshift-image-registry.svc:5000/petclinic-cicd/spring-petclinic-git
           ports:
             - containerPort: 8080
               protocol: TCP
