@@ -1,0 +1,53 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: spring-petclinic-gitops
+  labels:
+    app: spring-petclinic-gitops
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spring-petclinic-gitops
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: spring-petclinic-gitops
+    spec:
+      containers:
+        - name: spring-petclinic-git
+          image: >-
+            image-registry.openshift-image-registry.svc:5000/petclinic-cicd/spring-petclinic-git@sha256:a87d051c8bd6eab8112c31cf02af53ca4b443fa7a69f4db0297cbede20969fcb
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+            - containerPort: 8443
+              protocol: TCP
+            - containerPort: 8778
+              protocol: TCP
+          resources: {}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+              scheme: HTTP
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 10
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: Always
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600

@@ -1,0 +1,14 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: spring-petclinic-gitops
+  labels:
+    app: spring-petclinic-gitops
+spec:
+  to:
+    kind: Service
+    name: spring-petclinic-gitops
+    weight: 100
+  port:
+    targetPort: 8080-tcp
+  wildcardPolicy: None
