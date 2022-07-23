@@ -19,6 +19,11 @@ spec:
         - name: spring-petclinic-git
           image: >-
             image-registry.openshift-image-registry.svc:5000/petclinic-cicd/spring-petclinic-git
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: mysql
+            - name: MYSQL_URL
+              value: 'jdbc:mysql://mysql:3306/petclinic'            
           ports:
             - containerPort: 8080
               protocol: TCP
