@@ -37,7 +37,7 @@ spec:
             secretKeyRef:
               key: database-name
               name: mysql
-        image: 'registry.redhat.io/rhel8/mysql-80@sha256:54a45c2e00a0d83605d7c2f262ca515d8f5fa1e47ea289e49cfee87c89e3d7ab'
+        image: 'image-registry.openshift-image-registry.svc:5000/openshift/mysql@sha256:285db0a66978f866c9ee026baba62a16003fcc086e120cc4d3d6838bcf32514a'
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
